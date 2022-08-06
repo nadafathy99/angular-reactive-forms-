@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Customer } from './customer';
 
-function checkRange( c:AbstractControl ): {[key:string]: boolean} |null {
-  if (c.value !== null && (isNaN(c.value) || c.value<1|| c.value>5) ) {
-    return  {'range': true}
+function checkRange (min:number, max: number): ValidatorFn{
+  return ( c:AbstractControl ): {[key:string]: boolean} |null =>{
+    if (c.value !== null && (isNaN(c.value) || c.value< min|| c.value>max) ) {
+      return  {'range': true}
+    }
+    return null;
   }
-  return null;
 }
+
 
 @Component({
   selector: 'app-customers-reactive',
@@ -25,7 +28,7 @@ export class CustomersReactiveComponent implements OnInit {
     sendCatalog: true,
     phone: '',
     notification: 'email',
-    rating: [null, checkRange]
+    rating: [null, checkRange(1,5)]
   })
   constructor(private fb: FormBuilder) { }
 
