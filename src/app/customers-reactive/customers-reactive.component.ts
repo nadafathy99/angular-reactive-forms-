@@ -2,6 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Customer } from './customer';
 
+function emailMatcher(c: AbstractControl) : {[key:string]:boolean}|null {
+  const email = c.get('email');
+  const confirmEmail= c.get('confirmEmail');
+  if (email?.pristine|| confirmEmail?.pristine) return null;
+  if (email?.value=== confirmEmail?.value) return null;
+  return {'match':true}
+}
+
 function checkRange (min:number, max: number): ValidatorFn{
   return ( c:AbstractControl ): {[key:string]: boolean} |null =>{
     if (c.value !== null && (isNaN(c.value) || c.value< min|| c.value>max) ) {
@@ -24,7 +32,10 @@ export class CustomersReactiveComponent implements OnInit {
   customerForm = this.fb.group({
     firstName: ['',[Validators.required,Validators.minLength(3)]],
     lastName: {value:'', disabled:true},
-    email: ['',[Validators.required,Validators.email]],
+    emailGroup : this.fb.group({
+      email: ['',[Validators.required,Validators.email]],
+      confirmEmail: ['', Validators.required],
+    }, {validator: emailMatcher}),
     sendCatalog: true,
     phone: '',
     notification: 'email',
